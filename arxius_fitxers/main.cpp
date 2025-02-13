@@ -83,15 +83,18 @@ binari i finalment les llegeixi per imprimir-les per consola.
 
 
 void SaveSentences(vector<string>& sentences, string& fileName) {
+	/*Opening the file in binary mode*/
 	ofstream outFile(fileName, ios::binary | ios::trunc);
-
+	/*Cheking if the file is open*/
 	if (!outFile.is_open()) return;
-
+	/*getting the vector size*/
 	size_t vectorSize = sentences.size();
+	/*Handling empty vector*/
 	if (vectorSize == 0) return;
-
 	outFile.write(reinterpret_cast<char*>(&vectorSize), sizeof(size_t));
-
+	/*Cicle for to write all the strings and go through them, the size of the string is written
+		The sentence itself is weitten to the file using outfile.write, c-string representation of the sentence
+		and string size tells us how many char to write*/
 	for (size_t i = 0; i < vectorSize; i++) {
 		size_t stringSize = sentences[i].size();
 		outFile.write(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
@@ -102,17 +105,27 @@ void SaveSentences(vector<string>& sentences, string& fileName) {
 }
 
 void recoverSentences(vector<string>& sentences, string& fileName) {
+	/*Open in binary mode*/
 	ifstream inFile(fileName, ios::binary);
 
 	if (!inFile.is_open()) return;
-
+	/*Reading the vector size*/
 	size_t vectorSize = 0;
 	inFile.read(reinterpret_cast<char*>(&vectorSize), sizeof(size_t));
 
+	/*The size of the string is read stringsize
+	a temporary array is created to store the string, the array size 
+	is +1 for the null terminator
+	the sentence is read from the file into arrtmp
+	the arrtmp array is converted into a string object which is pushed into the 
+	sentences vector
+	And the dynamically allocated memory for arrTmp is deleted to prevent memory leaks*/
+
 	for (size_t i = 0; i < vectorSize; i++) {
+		/*We create a string size*/
 		size_t stringSize;
 		inFile.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-
+		/*Temporary array*/
 		char* arrTmp = new char[stringSize + 1];
 		inFile.read(arrTmp, sizeof(char) * stringSize);
 
@@ -129,7 +142,7 @@ int main() {
 	vector<string> sentences;
 	string fileName = "frases.dat";
 	string userSentence;
-
+	/*Do while to get sentences from the user until it is fin, and while it is not, we push them back*/
 	do {
 		cout << "Dame una frase (o escribe 'fin' para terminar): " << endl;
 		getline(cin, userSentence);
@@ -150,9 +163,32 @@ int main() {
 
 	// Imprimir las frases recuperadas
 	cout << "\nFrases recuperadas del archivo:\n";
+	/*Cicle for to run through all the sentences written by the user*/
 	for (const string& sentence : sentences) {
 		cout << sentence << endl;
 	}
 
 	return 0;
 }
+
+
+	/*Leer un archivo txt con la siguiente informacion:
+	-----
+	-...-
+	-..E-
+	-.P.-
+	-...-
+	-----
+
+	E --> Enemy
+	P --> Player
+	- --> Muro
+	. --> Casilla Vacia
+
+	2. Gameplay: el jugador puede moverse con W, A, S, D dentro de la sala
+		- Si choca con el enemigo 50% de probabilidades de ganar
+		- Si gana, win y gameover (se le vuelve a preguntar de jugar)
+
+	3 En cualquier momento puedo guardar la racha de victorias que llevo en un archivo binario. Antes me pide el nombre y se tiene que guardar el nombre y la racha de victorias. 
+
+	*/
