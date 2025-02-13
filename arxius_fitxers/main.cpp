@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #define ROW_SIZE 6
 #define COLS_SIZE 5
 
@@ -172,12 +174,62 @@ binari i finalment les llegeixi per imprimir-les per consola.
 	//	return 0;
 	//}
 
-void gamePlay(std::vector<std::vector<char>> &table, int &playerRow, int& playerCol, int& row, int& col) {
-	
+void saveStreak(int streak) {
+	/*We first save the player name, then we load the file where we are going to store the data
+	Then we check if the file is open
+	We save the length of the characters with size_t
+	We write the reinterpret 
+	we write the cstr
+	we write the reinterpret but with the streak
+	And finally close the file*/
+	std::string playerName;
+	std::cout << "Enter your name to save your streak: ";
+	std::cin >> playerName;
 
+	std::ofstream file("victories.dat", std::ios::binary | std::ios::app);
+	if (!file) {
+		std::cerr << "Error opening file!\n";
+		return;
+	}
+
+	// Save name length first to handle different name sizes
+	size_t nameLength = playerName.size();
+	file.write(reinterpret_cast<const char*>(&nameLength), sizeof(size_t));
+	file.write(playerName.c_str(), nameLength);
+	file.write(reinterpret_cast<const char*>(&streak), sizeof(int));
+
+	file.close();
+	std::cout << "Streak saved!\n";
 }
+//With this I can open the file with normal char
+void loadStreaks() {
+	// We load the file with ifstream, then check if its open. Later, we 
+	std::ifstream file("victories.dat", std::ios::binary);
+	if (!file) {
+		std::cerr << "No saved streaks found!\n";
+		return;
+	}
+
+	std::cout << "Saved Streaks:\n";
+	while (!file.eof()) {
+		size_t nameLength;
+		if (!file.read(reinterpret_cast<char*>(&nameLength), sizeof(size_t))) break;
+
+		std::string name(nameLength, '\0');
+		file.read(&name[0], nameLength);
+
+		int streak;
+		file.read(reinterpret_cast<char*>(&streak), sizeof(int));
+
+		std::cout << "Player: " << name << " - Streak: " << streak << "\n";
+	}
+
+	file.close();
+}
+
 int main() {
 
+	srand(time(NULL));
 
 	/*Leer un archivo txt con la siguiente informacion:
 	-----
@@ -226,7 +278,7 @@ int main() {
 	table[enemyRow][enemyCol] = 'E';
 
 	bool gameOver = false;
-
+	int streak = 0;
 	while (!gameOver) {
 
 		/*We print it*/
@@ -240,6 +292,11 @@ int main() {
 		char userInput;
 		std::cout << "Pulsa una tecla para moverte (W-A-S-D): ";
 		std::cin >> userInput;
+
+		if (userInput == 'X' || userInput == 'x') {
+			saveStreak(streak);
+			continue;
+		}
 
 		int oldRow = playerRow;
 		int oldCol = playerCol;
@@ -255,7 +312,7 @@ int main() {
 
 		default:
 			std::cout << "Not valid" << std::endl;
-			return 0;
+			return 1;
 
 
 		}
@@ -273,9 +330,30 @@ int main() {
 		// Place the player in the new position
 		table[playerRow][playerCol] = 'P';
 
-		if (table[playerRow][playerCol] == table[enemyRow][enemyCol]) {
-			std::cout << "Has ganado la partida" << std::endl;
-			gameOver = true;
+		int win_prob;
+		int rand_row;
+		int rand_col;
+
+		if (playerRow == enemyRow && playerCol == enemyCol) {
+			win_prob = rand() % 2;
+			if (win_prob == 1) {
+				std::cout << "Has ganado la partida" << std::endl;
+				gameOver = true;
+				streak++;
+			}
+			else {
+				std::cout << "Keep playing boy!" << std::endl;
+				
+				do
+				{
+					enemyRow = rand() % (ROW_SIZE - 2) + 1;
+					enemyCol = rand() % (COLS_SIZE - 2) + 1;
+				} while (table[enemyRow][enemyCol] == 'P');
+
+				table[enemyRow][enemyCol] = 'E';
+
+			}
+		
 		}
 	}
 
