@@ -1,0 +1,58 @@
+KEY SENTENCES
+
+1. ios::binary to open a file in binary mode
+2. size_t to get the size of a variable 
+3. reinterpret_cast <char*>(&variable?size), sizeof(size_t) to write the vector size
+4. c_str() Returns a pointer to an array that contains a null-terminated sequence of characters representing the current value of the string object 
+5. delete[] a temporary array where we read the strings to control the amount of dynamic memory we are using
+
+HOW TO WRITE A FILE 
+
+- We save sentences writing files. We need to save 2 variables, one for the vector of strings were we will save the sentences and another string where we will safe the file name. 
+
+1. First we open the file in binary mode (ofstream file_name, ios::binary | ios:trunc);
+2. We then check if the file is open (if (!outFile.is_open()) return;)
+3. If it isn't we get the vector size (size_t vector_name = string.size();)
+4. We handle the empty vector if vectorSize is NULL we return
+5. We write in the file the size of the actual vector (outFile.write(reinterpret...vectorSize))
+6. Then we make a cicle to:
+	a. Write all the strings and go through them
+		- size_t i = 0; i < vectorSize...
+	b. The size of the string is written 
+		- size_t stringSize = sentences[i].size()
+	c. The sentence itself is written to the file using outfile.write
+		- outFile.write(reinterpret...stringSize)
+	d. c-string representation of the sentence
+		- outFile.write(sentences[i].c_str(), string_size)
+	e. We get how many characters to write with string size
+7. Finally outside the iteration we close the file.
+
+HOW TO READ A FILE
+
+1. First we open the binary mode with ifstream the same way without trunc
+2. We check if the file is open
+3. We read the vectorsize we put it at 0??
+4. We read the vector size with the reinterpret cast
+5. We make a cicle to:
+	a. Make the size of the array the string size i < vectorSize;
+	b. A tmp arr is created to store the string, +1 for the null terminator
+		- char* tempArr = new char [stringSize + 1];
+	c. The sentence is read from the file into the array
+		- inFile.read (arrTmp, sizeof(char) * stringSize)
+	d. The tmp arr is converted into a string object which is pushed into the sentences vector
+		- arrTmp[stringSize] = '\0'; string sentence = arrTmp;
+	e. And the dynamically allocated memory for arrTmp is deleted to prevent memory leaks
+		- delete[] arrTmp; sentences.push_back(sentence)
+
+HOW TO PRINT A FILE 
+
+- To print the file and sentences saved there, we go into the main, and declare the vector of strings we used previously, the fileName too, and finally the string we will be introducing to the vector. 
+
+1. With a do while we claim a sentence until the userSentence is END, if it is not we push back the userSentences into our string vector. 
+
+2. Then we save the sentences, we do a sentence.clear to empty our vector to read it later, and then we recoverSentences and print them witrh an iteration:
+	- for (const string& setnence : sentences) cout sentence endl return 0;
+HOW TO MODIFY A FILE 
+
+1. To be able to modify a file and get to change from the file a table, it will have to be done with a vector-in-vector, and not an array, 'cause for that, we need dynamic memory and pointers. And an array must have a constant value. to make a dynamic table:
+	- 

@@ -82,8 +82,8 @@ binari i finalment les llegeixi per imprimir-les per consola.
 	
 
 
-void SaveSentences(vector<string>& sentences, string& fileName) {
-	/*Opening the file in binary mode*/
+	void SaveSentences(vector<string>& sentences, string& fileName) {
+		/*Opening the file in binary mode*/
 	ofstream outFile(fileName, ios::binary | ios::trunc);
 	/*Cheking if the file is open*/
 	if (!outFile.is_open()) return;
@@ -102,76 +102,77 @@ void SaveSentences(vector<string>& sentences, string& fileName) {
 	}
 
 	outFile.close();
-}
-
-void recoverSentences(vector<string>& sentences, string& fileName) {
-	/*Open in binary mode*/
-	ifstream inFile(fileName, ios::binary);
-
-	if (!inFile.is_open()) return;
-	/*Reading the vector size*/
-	size_t vectorSize = 0;
-	inFile.read(reinterpret_cast<char*>(&vectorSize), sizeof(size_t));
-
-	/*The size of the string is read stringsize
-	a temporary array is created to store the string, the array size 
-	is +1 for the null terminator
-	the sentence is read from the file into arrtmp
-	the arrtmp array is converted into a string object which is pushed into the 
-	sentences vector
-	And the dynamically allocated memory for arrTmp is deleted to prevent memory leaks*/
-
-	for (size_t i = 0; i < vectorSize; i++) {
-		/*We create a string size*/
-		size_t stringSize;
-		inFile.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
-		/*Temporary array*/
-		char* arrTmp = new char[stringSize + 1];
-		inFile.read(arrTmp, sizeof(char) * stringSize);
-
-		arrTmp[stringSize] = '\0';
-		string sentence = arrTmp;
-
-		delete[] arrTmp;
-		sentences.push_back(sentence);
 	}
-	inFile.close();
-}
 
-int main() {
-	vector<string> sentences;
-	string fileName = "frases.dat";
-	string userSentence;
-	/*Do while to get sentences from the user until it is fin, and while it is not, we push them back*/
-	do {
-		cout << "Dame una frase (o escribe 'fin' para terminar): " << endl;
-		getline(cin, userSentence);
+	void recoverSentences(vector<string>& sentences, string& fileName) {
+		/*Open in binary mode*/
+		ifstream inFile(fileName, ios::binary);
 
-		if (userSentence != "fin") {
-			sentences.push_back(userSentence);
+		if (!inFile.is_open()) return;
+		/*Reading the vector size*/
+		size_t vectorSize = 0;
+		inFile.read(reinterpret_cast<char*>(&vectorSize), sizeof(size_t));
+
+		/*The size of the string is read stringsize
+		a temporary array is created to store the string, the array size
+		is +1 for the null terminator
+		the sentence is read from the file into arrtmp
+		the arrtmp array is converted into a string object which is pushed into the
+		sentences vector
+		And the dynamically allocated memory for arrTmp is deleted to prevent memory leaks*/
+
+		for (size_t i = 0; i < vectorSize; i++) {
+			/*We create a string size*/
+			size_t stringSize;
+			inFile.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+			/*Temporary array*/
+			char* arrTmp = new char[stringSize + 1];
+			inFile.read(arrTmp, sizeof(char) * stringSize);
+
+			arrTmp[stringSize] = '\0';
+			string sentence = arrTmp;
+
+			delete[] arrTmp;
+			sentences.push_back(sentence);
 		}
-	} while (userSentence != "fin");
-
-	// Guardar las frases en el archivo binario
-	SaveSentences(sentences, fileName);
-
-	// Vaciar el vector para simular la lectura desde un archivo
-	sentences.clear();
-
-	// Recuperar las frases del archivo binario
-	recoverSentences(sentences, fileName);
-
-	// Imprimir las frases recuperadas
-	cout << "\nFrases recuperadas del archivo:\n";
-	/*Cicle for to run through all the sentences written by the user*/
-	for (const string& sentence : sentences) {
-		cout << sentence << endl;
+		inFile.close();
 	}
 
-	return 0;
-}
+	int main() {
+		vector<string> sentences;
+		string fileName = "frases.dat";
+		string userSentence;
+		/*Do while to get sentences from the user until it is fin, and while it is not, we push them back*/
+		do {
+			cout << "Dame una frase (o escribe 'fin' para terminar): " << endl;
+			getline(cin, userSentence);
+
+			if (userSentence != "fin") {
+				sentences.push_back(userSentence);
+			}
+		} while (userSentence != "fin");
+
+		// Guardar las frases en el archivo binario
+		SaveSentences(sentences, fileName);
 
 
+		// Vaciar el vector para simular la lectura desde un archivo
+		sentences.clear();
+
+		// Recuperar las frases del archivo binario
+		recoverSentences(sentences, fileName);
+
+		// Imprimir las frases recuperadas
+		cout << "\nFrases recuperadas del archivo:\n";
+		/*Cicle for to run through all the sentences written by the user*/
+		for (const string& sentence : sentences) {
+			cout << sentence << endl;
+		}
+
+		return 0;
+	}
+	
+		
 	/*Leer un archivo txt con la siguiente informacion:
 	-----
 	-...-
